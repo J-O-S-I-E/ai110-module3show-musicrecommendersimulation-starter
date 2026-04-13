@@ -1,19 +1,19 @@
-id,title,artist,genre,mood,energy,tempo_bpm,valence,danceability,acousticness
-1,Sunrise City,Neon Echo,pop,happy,0.82,118,0.84,0.79,0.18
-2,Midnight Coding,LoRoom,lofi,chill,0.42,78,0.56,0.62,0.71
-3,Storm Runner,Voltline,rock,intense,0.91,152,0.48,0.66,0.10
-4,Library Rain,Paper Lanterns,lofi,chill,0.35,72,0.60,0.58,0.86
-5,Gym Hero,Max Pulse,pop,intense,0.93,132,0.77,0.88,0.05
-6,Spacewalk Thoughts,Orbit Bloom,ambient,chill,0.28,60,0.65,0.41,0.92
-7,Coffee Shop Stories,Slow Stereo,jazz,relaxed,0.37,90,0.71,0.54,0.89
-8,Night Drive Loop,Neon Echo,synthwave,moody,0.75,110,0.49,0.73,0.22
-9,Focus Flow,LoRoom,lofi,focused,0.40,80,0.59,0.60,0.78
-10,Rooftop Lights,Indigo Parade,indie pop,happy,0.76,124,0.81,0.82,0.35
-11,Street Cipher,Vox Rogue,hip-hop,angry,0.85,95,0.32,0.87,0.08
-12,Raindrop Sonata,Clara Voss,classical,melancholic,0.18,58,0.28,0.22,0.97
-13,Velvet Nights,Sable June,r&b,romantic,0.61,88,0.73,0.76,0.42
-14,Dirt Road Memory,Blue Ridge Hollow,country,nostalgic,0.54,104,0.66,0.63,0.74
-15,Iron Requiem,Grave Current,metal,angry,0.97,178,0.21,0.55,0.03
-16,Island Sunrise,Sol Riddim,reggae,uplifting,0.67,82,0.88,0.84,0.53
-17,Fuego en la Pista,Ritmo Del Sur,latin,uplifting,0.88,128,0.91,0.93,0.14
-18,Signal Lost,Dusk Circuit,electronic,sad,0.79,138,0.24,0.80,0.07
+id,title,artist,genre,mood,energy,tempo_bpm,valence,danceability,acousticness,popularity,decade,mood_tags,lyrical_complexity,live_feel
+1,Sunrise City,Neon Echo,pop,happy,0.82,118,0.84,0.79,0.18,78,2020,"euphoric,uplifting,bright",0.40,0.20
+2,Midnight Coding,LoRoom,lofi,chill,0.42,78,0.56,0.62,0.71,62,2020,"cozy,focused,dreamy",0.20,0.70
+3,Storm Runner,Voltline,rock,intense,0.91,152,0.48,0.66,0.10,71,2010,"powerful,aggressive,triumphant",0.50,0.50
+4,Library Rain,Paper Lanterns,lofi,chill,0.35,72,0.60,0.58,0.86,58,2020,"peaceful,introspective,gentle",0.10,0.80
+5,Gym Hero,Max Pulse,pop,intense,0.93,132,0.77,0.88,0.05,82,2020,"pumped,motivated,energetic",0.30,0.10
+6,Spacewalk Thoughts,Orbit Bloom,ambient,chill,0.28,60,0.65,0.41,0.92,45,2010,"meditative,ethereal,expansive",0.00,0.40
+7,Coffee Shop Stories,Slow Stereo,jazz,relaxed,0.37,90,0.71,0.54,0.89,52,2000,"warm,nostalgic,intimate",0.60,0.90
+8,Night Drive Loop,Neon Echo,synthwave,moody,0.75,110,0.49,0.73,0.22,67,2010,"atmospheric,mysterious,cool",0.20,0.20
+9,Focus Flow,LoRoom,lofi,focused,0.40,80,0.59,0.60,0.78,59,2020,"concentrated,steady,calm",0.00,0.60
+10,Rooftop Lights,Indigo Parade,indie pop,happy,0.76,124,0.81,0.82,0.35,73,2010,"hopeful,romantic,breezy",0.70,0.50
+11,Street Cipher,Vox Rogue,hip-hop,angry,0.85,95,0.32,0.87,0.08,76,2010,"gritty,raw,aggressive",0.90,0.60
+12,Raindrop Sonata,Clara Voss,classical,melancholic,0.18,58,0.28,0.22,0.97,38,1990,"melancholic,tender,delicate",0.00,0.80
+13,Velvet Nights,Sable June,r&b,romantic,0.61,88,0.73,0.76,0.42,69,2000,"sensual,smooth,romantic",0.50,0.30
+14,Dirt Road Memory,Blue Ridge Hollow,country,nostalgic,0.54,104,0.66,0.63,0.74,55,2000,"nostalgic,sentimental,rustic",0.70,0.70
+15,Iron Requiem,Grave Current,metal,angry,0.97,178,0.21,0.55,0.03,48,2010,"dark,crushing,intense",0.40,0.40
+16,Island Sunrise,Sol Riddim,reggae,uplifting,0.67,82,0.88,0.84,0.53,61,2000,"joyful,relaxed,tropical",0.50,0.60
+17,Fuego en la Pista,Ritmo Del Sur,latin,uplifting,0.88,128,0.91,0.93,0.14,77,2020,"euphoric,passionate,vibrant",0.60,0.30
+18,Signal Lost,Dusk Circuit,electronic,sad,0.79,138,0.24,0.80,0.07,64,2020,"haunting,dark,desolate",0.10,0.20
