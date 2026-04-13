@@ -41,6 +41,106 @@ The `UserProfile` class stores user preferences to match against songs:
 
 These features enable content-based filtering, where numerical attributes are compared for similarity (e.g., minimizing distance in energy), and categorical ones provide bonus points for exact matches. The system prioritizes vibe alignment over other factors like popularity or user history.
 
+### Data Flow
+
+The diagram below traces how a single song travels from the CSV file to a ranked recommendation slot.
+
+```mermaid
+flowchart TD
+    PREFS["User Prefs Dict
+    genre · mood
+    target_energy · target_acousticness · target_tempo"]
+
+    CSV["data/songs.csv
+    18 rows"]
+
+    PREFS --> MAIN["main()"]
+    MAIN  --> LOAD["load_songs()
+    Parse CSV · cast numeric fields to float/int"]
+    CSV   --> LOAD
+
+    LOAD  --> SONGS["18 Song Dicts"]
+    SONGS --> REC
+    MAIN  --> REC["recommend_songs(user_prefs, songs, k=5)"]
+
+    REC   --> LOOP{"next song?"}
+
+    LOOP  -->|"yes — pass song i"| SCORE["score_song(user_prefs, song)"]
+
+    subgraph RECIPE ["Scoring Recipe — max 6.0 pts per song"]
+        direction TB
+        G{"genre\nmatch?"}  -->|"yes: +2.0"| MD{"mood\nmatch?"}
+        G                   -->|"no:  +0.0"| MD
+        MD                  -->|"yes: +1.5"| EN["energy similarity
+        (1 − |Δ|) × 1.0   →   up to +1.0"]
+        MD                  -->|"no:  +0.0"| EN
+        EN --> AC["acousticness similarity
+        (1 − |Δ|) × 1.0   →   up to +1.0"]
+        AC --> TP["tempo similarity
+        (1 − |Δ| ÷ 120) × 0.5   →   up to +0.5"]
+        TP --> RET["return (score, explanation)"]
+    end
+
+    SCORE --> G
+    RET   --> LOOP
+
+    LOOP  -->|"no more songs"| SORT["Sort all 18 results by score DESC"]
+    SORT  --> TOPK["Slice top k = 5"]
+    TOPK  --> OUT["Print top 5 recommendations
+    #1  Midnight Coding   — 5.91
+    #2  Library Rain      — 5.84
+    #3  Focus Flow        — 4.43
+    #4  Spacewalk Thoughts — 3.66
+    #5  Coffee Shop Stories — 2.29"]
+```
+
+**How to read the diagram:**
+- **Left column** — inputs: the user's taste profile and the raw CSV file enter through `main()`.
+- **`load_songs()`** — reads every CSV row and casts numeric fields so math operations work downstream.
+- **Loop diamond** — `recommend_songs` calls `score_song` once for each of the 18 songs; the back-edge from `return` to the diamond represents that iteration.
+- **Scoring Recipe subgraph** — the interior of `score_song`: two binary checks (genre, mood) followed by three continuous similarity calculations. A song that matches on every feature scores the full 6.0 pts.
+- **Sort → Slice → Print** — after all 18 songs are scored, they are ranked highest-to-lowest and the top `k` are returned and printed.
+
+---
+
+### Algorithm Recipe
+
+Every song is evaluated by `score_song()` using this fixed point table. Scores are summed, then all 18 songs are ranked highest-to-lowest and the top `k` are returned.
+
+| Feature | Points | Method | Why this weight |
+|---|---|---|---|
+| Genre match | **+2.0** | Binary (exact string) | 14 unique genres — the most specific signal in the dataset |
+| Mood match | **+1.5** | Binary (exact string) | 12 moods, but moods cross genre lines (e.g. "chill" = lofi AND ambient AND jazz), so slightly less decisive than genre |
+| Energy similarity | **0 – +1.0** | `(1 − \|song − target\|) × 1.0` | Continuous 0–1 scale; largest behavioral separator after genre/mood |
+| Acousticness similarity | **0 – +1.0** | `(1 − \|song − target\|) × 1.0` | Widest numeric gap in the dataset between opposing styles (rock ≈ 0.10, lofi ≈ 0.75) |
+| Tempo similarity | **0 – +0.5** | `(1 − \|song − target\| ÷ 120) × 0.5` | Normalized by dataset BPM range (178 − 58 = 120); half-weighted because tempo correlates with energy and would otherwise double-count that signal |
+| **Total possible** | **6.0 pts** | | |
+
+**Example scores for the "chill lofi" profile:**
+
+| Song | Genre | Mood | Energy | Acousticness | Tempo | Total |
+|---|---|---|---|---|---|---|
+| Midnight Coding | +2.0 | +1.5 | +0.96 | +0.96 | +0.49 | **5.91** |
+| Storm Runner (rock) | +0 | +0 | +0.47 | +0.35 | +0.13 | **0.95** |
+
+The 4.96-point gap between a lofi hit and a rock track shows the recipe cleanly separates opposing styles.
+
+---
+
+### Potential Biases
+
+This system will behave unfairly or unexpectedly in the following predictable ways:
+
+- **Genre dominates the ranking.** At +2.0 pts, a genre match is the single largest weight — larger than any continuous feature can contribute alone. A song in the right genre but with a mismatched vibe (e.g., an unusually intense lofi track) can outscore a song that nails energy, acousticness, and tempo but belongs to a different genre. Genre gatekeeps the top spots.
+
+- **Culturally adjacent genres are penalized equally to unrelated ones.** Binary matching treats "hip-hop" and "r&b" as just as different from "lofi" as "metal" is. There is no partial credit for genres that share sonic qualities, so recommendations can feel narrowly literal.
+
+- **Mood matches reward cross-genre outliers.** Because "chill" appears in lofi, ambient, and jazz, an ambient song can earn the full +1.5 mood bonus while still losing the +2.0 genre point — ending up mid-table even if it sounds nearly identical to the user's preferred songs.
+
+- **Energy and tempo are correlated, so they partially double-penalize.** A song that is slightly too fast will lose points on both tempo similarity and energy similarity, even if only one of those dimensions truly matters to the user.
+
+- **No diversity guarantee.** The ranker always returns the closest matches. A user who enjoys occasional variety will receive the same cluster of near-identical songs every run, with no mechanism to surface interesting edge cases.
+
 
 ---
 
