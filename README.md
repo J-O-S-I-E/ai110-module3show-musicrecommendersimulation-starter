@@ -141,6 +141,129 @@ This system will behave unfairly or unexpectedly in the following predictable wa
 
 - **No diversity guarantee.** The ranker always returns the closest matches. A user who enjoys occasional variety will receive the same cluster of near-identical songs every run, with no mechanism to surface interesting edge cases.
 
+---
+
+### Terminal Output
+
+Running `python -m src.main` produces the following output for two profiles.
+The pop/happy profile verifies that pop songs rise to the top; the lofi/chill
+profile is the primary taste profile for this project.
+
+```
+Loaded 18 songs from catalog.
+
+==============================================================
+  Music Recommender | Upbeat Pop (default verification profile)
+==============================================================
+
+  [1]  Sunrise City
+        Artist : Neon Echo
+        Genre  : pop  |  Mood: happy
+        Score  : 5.99 / 6.0
+        Why    :
+                 + genre match (+2.0)
+                 + mood match (+1.5)
+                 + energy similarity (+1.00)
+                 + acousticness similarity (+1.00)
+                 + tempo similarity (+0.49)
+
+  [2]  Gym Hero
+        Artist : Max Pulse
+        Genre  : pop  |  Mood: intense
+        Score  : 4.21 / 6.0
+        Why    :
+                 + genre match (+2.0)
+                 + energy similarity (+0.89)
+                 + acousticness similarity (+0.87)
+                 + tempo similarity (+0.45)
+
+  [3]  Rooftop Lights
+        Artist : Indigo Parade
+        Genre  : indie pop  |  Mood: happy
+        Score  : 3.75 / 6.0
+        Why    :
+                 + mood match (+1.5)
+                 + energy similarity (+0.94)
+                 + acousticness similarity (+0.83)
+                 + tempo similarity (+0.48)
+
+  [4]  Fuego en la Pista
+        Artist : Ritmo Del Sur
+        Genre  : latin  |  Mood: uplifting
+        Score  : 2.37 / 6.0
+        Why    :
+                 + energy similarity (+0.94)
+                 + acousticness similarity (+0.96)
+                 + tempo similarity (+0.47)
+
+  [5]  Night Drive Loop
+        Artist : Neon Echo
+        Genre  : synthwave  |  Mood: moody
+        Score  : 2.35 / 6.0
+        Why    :
+                 + energy similarity (+0.93)
+                 + acousticness similarity (+0.96)
+                 + tempo similarity (+0.46)
+
+--------------------------------------------------------------
+
+==============================================================
+  Music Recommender | Chill Lofi Study Session
+==============================================================
+
+  [1]  Midnight Coding
+        Artist : LoRoom
+        Genre  : lofi  |  Mood: chill
+        Score  : 5.91 / 6.0
+        Why    :
+                 + genre match (+2.0)
+                 + mood match (+1.5)
+                 + energy similarity (+0.96)
+                 + acousticness similarity (+0.96)
+                 + tempo similarity (+0.49)
+
+  [2]  Library Rain
+        Artist : Paper Lanterns
+        Genre  : lofi  |  Mood: chill
+        Score  : 5.84 / 6.0
+        Why    :
+                 + genre match (+2.0)
+                 + mood match (+1.5)
+                 + energy similarity (+0.97)
+                 + acousticness similarity (+0.89)
+                 + tempo similarity (+0.48)
+
+  [3]  Focus Flow
+        Artist : LoRoom
+        Genre  : lofi  |  Mood: focused
+        Score  : 4.43 / 6.0
+        Why    :
+                 + genre match (+2.0)
+                 + energy similarity (+0.98)
+                 + acousticness similarity (+0.97)
+                 + tempo similarity (+0.48)
+
+  [4]  Spacewalk Thoughts
+        Artist : Orbit Bloom
+        Genre  : ambient  |  Mood: chill
+        Score  : 3.66 / 6.0
+        Why    :
+                 + mood match (+1.5)
+                 + energy similarity (+0.90)
+                 + acousticness similarity (+0.83)
+                 + tempo similarity (+0.43)
+
+  [5]  Coffee Shop Stories
+        Artist : Slow Stereo
+        Genre  : jazz  |  Mood: relaxed
+        Score  : 2.29 / 6.0
+        Why    :
+                 + energy similarity (+0.99)
+                 + acousticness similarity (+0.86)
+                 + tempo similarity (+0.44)
+
+--------------------------------------------------------------
+```
 
 ---
 

@@ -66,13 +66,16 @@ class Recommender:
     """OOP implementation of the recommendation logic. Required by tests/test_recommender.py"""
 
     def __init__(self, songs: List[Song]):
+        """Store the song catalog that this recommender will rank against."""
         self.songs = songs
 
     def recommend(self, user: UserProfile, k: int = 5) -> List[Song]:
+        """Return the top k songs for the given user profile (not yet implemented)."""
         # TODO: Implement recommendation logic
         return self.songs[:k]
 
     def explain_recommendation(self, user: UserProfile, song: Song) -> str:
+        """Return a plain-language explanation of why song was recommended to user."""
         # TODO: Implement explanation logic
         return "Explanation placeholder"
 
@@ -113,63 +116,78 @@ def load_songs(csv_path: str) -> List[Dict]:
     return songs
 
 
-def score_song(user_prefs: Dict, song: Dict) -> Tuple[float, str]:
+def score_song(user_prefs: Dict, song: Dict) -> Tuple[float, List[str]]:
     """
     Scores a single song against the user's taste profile.
 
-    Returns (total_score, explanation_string).
+    Returns (total_score, reasons) where reasons is a human-readable list
+    explaining every point awarded, e.g.:
+        ["genre match (+2.0)", "mood match (+1.5)", "energy similarity (+0.96)"]
 
     Scoring recipe (max 6.0 points):
-      +2.0  genre match         (binary)
-      +1.5  mood match          (binary)
-      +0–1.0  energy proximity  (continuous, linear)
-      +0–1.0  acousticness      (continuous, linear)
-      +0–0.5  tempo proximity   (continuous, normalized to 120 BPM range)
+      +2.0        genre match        binary — exact string comparison
+      +1.5        mood match         binary — exact string comparison
+      +0.0–+1.0   energy proximity   continuous: (1 - |song - target|) * 1.0
+      +0.0–+1.0   acousticness       continuous: (1 - |song - target|) * 1.0
+      +0.0–+0.5   tempo proximity    continuous: (1 - |song - target| / 120) * 0.5
     """
     score = 0.0
     reasons: List[str] = []
 
-    # --- Categorical matches (binary) ---
+    # --- Binary matches: full points or nothing ---
     if song.get("genre", "").lower() == user_prefs.get("genre", "").lower():
         score += WEIGHT_GENRE
-        reasons.append(f"genre match ({song['genre']})")
+        reasons.append(f"genre match (+{WEIGHT_GENRE})")
 
     if song.get("mood", "").lower() == user_prefs.get("mood", "").lower():
         score += WEIGHT_MOOD
-        reasons.append(f"mood match ({song['mood']})")
+        reasons.append(f"mood match (+{WEIGHT_MOOD})")
 
-    # --- Continuous similarity: energy ---
+    # --- Continuous similarity: energy (0–1 scale, no normalization needed) ---
     if "target_energy" in user_prefs:
-        energy_sim = 1.0 - abs(song["energy"] - user_prefs["target_energy"])
-        energy_pts = energy_sim * WEIGHT_ENERGY
+        energy_pts = (1.0 - abs(song["energy"] - user_prefs["target_energy"])) * WEIGHT_ENERGY
         score += energy_pts
-        reasons.append(f"energy {song['energy']:.2f}~{user_prefs['target_energy']:.2f} (+{energy_pts:.2f})")
+        reasons.append(f"energy similarity (+{energy_pts:.2f})")
 
-    # --- Continuous similarity: acousticness ---
+    # --- Continuous similarity: acousticness (0–1 scale, no normalization needed) ---
     if "target_acousticness" in user_prefs:
-        acoustic_sim = 1.0 - abs(song["acousticness"] - user_prefs["target_acousticness"])
-        acoustic_pts = acoustic_sim * WEIGHT_ACOUSTICNESS
+        acoustic_pts = (1.0 - abs(song["acousticness"] - user_prefs["target_acousticness"])) * WEIGHT_ACOUSTICNESS
         score += acoustic_pts
-        reasons.append(f"acousticness {song['acousticness']:.2f}~{user_prefs['target_acousticness']:.2f} (+{acoustic_pts:.2f})")
+        reasons.append(f"acousticness similarity (+{acoustic_pts:.2f})")
 
-    # --- Continuous similarity: tempo (normalized by dataset range) ---
+    # --- Continuous similarity: tempo (normalized by 120 BPM dataset range) ---
     if "target_tempo" in user_prefs:
-        tempo_sim = max(0.0, 1.0 - abs(song["tempo_bpm"] - user_prefs["target_tempo"]) / TEMPO_RANGE)
-        tempo_pts = tempo_sim * WEIGHT_TEMPO
+        tempo_pts = max(0.0, 1.0 - abs(song["tempo_bpm"] - user_prefs["target_tempo"]) / TEMPO_RANGE) * WEIGHT_TEMPO
         score += tempo_pts
-        reasons.append(f"tempo {song['tempo_bpm']:.0f}~{user_prefs['target_tempo']:.0f} BPM (+{tempo_pts:.2f})")
+        reasons.append(f"tempo similarity (+{tempo_pts:.2f})")
 
-    explanation = " | ".join(reasons) if reasons else "no matching features"
-    return round(score, 3), explanation
+    return round(score, 3), reasons
 
 
-def recommend_songs(user_prefs: Dict, songs: List[Dict], k: int = 5) -> List[Tuple[Dict, float, str]]:
+def recommend_songs(user_prefs: Dict, songs: List[Dict], k: int = 5) -> List[Tuple[Dict, float, List[str]]]:
     """
-    Scores all songs against user_prefs, then returns the top-k by score.
+    Scores every song in the catalog, ranks them highest-to-lowest, and
+    returns the top k results.
 
-    Return format: [(song_dict, score, explanation), ...]
+    Return format: [(song_dict, score, reasons), ...]
+    where reasons is the List[str] produced by score_song.
     Required by src/main.py
+
+    --- sorted() vs .sort() ---
+    list.sort()  mutates the list IN PLACE and returns None.
+                 Using it here would destroy the caller's original songs list
+                 and give us nothing to return.
+    sorted()     leaves the input untouched and returns a NEW sorted list.
+                 It also accepts any iterable (lists, generators, zip objects),
+                 making it the right tool whenever the sorted result is a
+                 separate value rather than a replacement for the original.
     """
-    scored = [score_song(user_prefs, song) for song in songs]
-    ranked = sorted(zip(songs, scored), key=lambda x: x[1][0], reverse=True)
-    return [(song, score, explanation) for song, (score, explanation) in ranked[:k]]
+    # score_song returns (score, reasons); the * unpacks that pair inline so
+    # each element is already the flat 3-tuple (song, score, reasons) we need.
+    scored = [(song, *score_song(user_prefs, song)) for song in songs]
+
+    # Sort by score (index 1), highest first. sorted() does not touch `scored`.
+    ranked = sorted(scored, key=lambda entry: entry[1], reverse=True)
+
+    # Slice to the top k results.
+    return ranked[:k]
