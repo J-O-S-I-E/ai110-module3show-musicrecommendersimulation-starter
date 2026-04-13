@@ -523,38 +523,64 @@ You can add more tests in `tests/test_recommender.py`.
 
 ## Experiments You Tried
 
-Use this section to document the experiments you ran. For example:
+**Weight shift — genre ×0.5, energy ×2.0 (Rock profile):**
+Storm Runner remained #1, but the gap to second place shrank from 2.13 points
+to 1.15 points. Gym Hero jumped from 3.85 to 4.82 — nearly a full point gain —
+because energy now carries double weight and Gym Hero is high-energy. The
+experiment showed that the original genre weight was suppressing good
+cross-genre numeric matches. Halving it surfaces more diverse results without
+displacing the correct top result.
 
-- What happened when you changed the weight on genre from 2.0 to 0.5
-- What happened when you added tempo or valence to the score
-- How did your system behave for different types of users
+**Adversarial — Sad Headbanger (metal genre, sad mood):**
+No metal+sad song exists in the catalog. The system silently prioritised genre
+(Iron Requiem, mood=angry, #1) over mood (Signal Lost, mood=sad, #2). The
+user asked for sadness and received anger, with no warning. This was the most
+important failure discovered: the system does not know what it cannot do.
+
+**Adversarial — Genre-Less (no genre key in profile):**
+Removing the genre key capped scores at ~3.7/6.0. Rooftop Lights (indie pop)
+beat Sunrise City (pop) purely on numeric similarity — energy 0.76 vs 0.82
+against a target of 0.75. Without the genre anchor, the continuous features
+make finer distinctions than most users would expect.
 
 ---
 
 ## Limitations and Risks
 
-Summarize some limitations of your recommender.
+- **Tiny catalog:** 18 songs means most genres have exactly one entry. Genre
+  preference essentially pre-determines the #1 result before any scoring runs.
+- **Binary genre matching:** "Indie pop" is treated as completely different from
+  "pop." There is no partial credit for adjacent genres.
+- **Silent conflict failure:** When genre and mood preferences cannot both be
+  satisfied, the system picks one (genre) and ignores the other without
+  informing the user.
+- **No lyrics, language, or cultural context:** Two songs with identical numeric
+  features but completely different lyrical content are indistinguishable.
+- **No diversity:** The same top 5 songs appear in the same order every run for
+  the same profile. There is no mechanism to surface a surprising outlier.
 
-Examples:
-
-- It only works on a tiny catalog
-- It does not understand lyrics or language
-- It might over favor one genre or mood
-
-You will go deeper on this in your model card.
+Full analysis in [**model_card.md**](model_card.md).
 
 ---
 
 ## Reflection
 
-Read and complete `model_card.md`:
+**Full model card:** [model_card.md](model_card.md)
+**Cross-profile comparisons:** [reflection.md](reflection.md)
 
-[**Model Card**](model_card.md)
+The biggest learning moment was discovering how quietly a recommender can fail.
+The Sad Headbanger profile (metal genre, sad mood) returned Iron Requiem at #1
+with a confident-looking score and a valid-sounding explanation — but the sad
+mood preference was completely ignored. Nothing in the output flagged this.
+Real systems fail the same way: they return something plausible and the user
+never knows what they missed.
 
-Write 1 to 2 paragraphs here about what you learned:
-
-- about how recommenders turn data into predictions
-- about where bias or unfairness could show up in systems like this
+The weight experiment revealed something equally important: the genre weight
+(+2.0) was acting like a thumb on the scale. Halving it let cross-genre
+energy matches compete, which produced a more musically interesting list
+without making the top result wrong. That tradeoff — how much to anchor on
+explicit preference vs. allow sonic similarity to pull across genre lines — is
+one of the core design decisions every real recommender system has to make.
 
 
 ---
