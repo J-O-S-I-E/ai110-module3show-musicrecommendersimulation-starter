@@ -145,15 +145,15 @@ This system will behave unfairly or unexpectedly in the following predictable wa
 
 ### Terminal Output
 
-Running `python -m src.main` produces the following output for two profiles.
-The pop/happy profile verifies that pop songs rise to the top; the lofi/chill
-profile is the primary taste profile for this project.
+Running `python -m src.main` produces output for five taste profiles plus one
+weight-shift experiment. Three profiles are standard; two are adversarial
+edge cases designed to reveal system weaknesses.
 
 ```
 Loaded 18 songs from catalog.
 
 ==============================================================
-  Music Recommender | Upbeat Pop (default verification profile)
+  Music Recommender | High-Energy Pop
 ==============================================================
 
   [1]  Sunrise City
@@ -261,6 +261,225 @@ Loaded 18 songs from catalog.
                  + energy similarity (+0.99)
                  + acousticness similarity (+0.86)
                  + tempo similarity (+0.44)
+
+--------------------------------------------------------------
+
+==============================================================
+  Music Recommender | Deep Intense Rock
+==============================================================
+
+  [1]  Storm Runner
+        Artist : Voltline
+        Genre  : rock  |  Mood: intense
+        Score  : 5.98 / 6.0
+        Why    :
+                 + genre match (+2.0)
+                 + mood match (+1.5)
+                 + energy similarity (+0.99)
+                 + acousticness similarity (+1.00)
+                 + tempo similarity (+0.49)
+
+  [2]  Gym Hero
+        Artist : Max Pulse
+        Genre  : pop  |  Mood: intense
+        Score  : 3.85 / 6.0
+        Why    :
+                 + mood match (+1.5)
+                 + energy similarity (+0.97)
+                 + acousticness similarity (+0.95)
+                 + tempo similarity (+0.42)
+
+  [3]  Fuego en la Pista
+        Artist : Ritmo Del Sur
+        Genre  : latin  |  Mood: uplifting
+        Score  : 2.35 / 6.0
+        Why    :
+                 + energy similarity (+0.98)
+                 + acousticness similarity (+0.96)
+                 + tempo similarity (+0.41)
+
+  [4]  Signal Lost
+        Artist : Dusk Circuit
+        Genre  : electronic  |  Mood: sad
+        Score  : 2.31 / 6.0
+        Why    :
+                 + energy similarity (+0.89)
+                 + acousticness similarity (+0.97)
+                 + tempo similarity (+0.45)
+
+  [5]  Iron Requiem
+        Artist : Grave Current
+        Genre  : metal  |  Mood: angry
+        Score  : 2.24 / 6.0
+        Why    :
+                 + energy similarity (+0.93)
+                 + acousticness similarity (+0.93)
+                 + tempo similarity (+0.38)
+
+--------------------------------------------------------------
+
+==============================================================
+  Music Recommender | ADVERSARIAL: Sad Headbanger (genre vs mood conflict)
+==============================================================
+  NOTE: No metal+sad song exists. Genre dominates; mood request goes unmet.
+
+  [1]  Iron Requiem
+        Artist : Grave Current
+        Genre  : metal  |  Mood: angry
+        Score  : 4.43 / 6.0
+        Why    :
+                 + genre match (+2.0)
+                 + energy similarity (+0.98)
+                 + acousticness similarity (+0.98)
+                 + tempo similarity (+0.47)
+
+  [2]  Signal Lost
+        Artist : Dusk Circuit
+        Genre  : electronic  |  Mood: sad
+        Score  : 3.69 / 6.0
+        Why    :
+                 + mood match (+1.5)
+                 + energy similarity (+0.84)
+                 + acousticness similarity (+0.98)
+                 + tempo similarity (+0.37)
+
+  [3]  Storm Runner
+        Artist : Voltline
+        Genre  : rock  |  Mood: intense
+        Score  : 2.33 / 6.0
+        Why    :
+                 + energy similarity (+0.96)
+                 + acousticness similarity (+0.95)
+                 + tempo similarity (+0.42)
+
+  [4]  Gym Hero
+        Artist : Max Pulse
+        Genre  : pop  |  Mood: intense
+        Score  : 2.32 / 6.0
+        Why    :
+                 + energy similarity (+0.98)
+                 + acousticness similarity (+1.00)
+                 + tempo similarity (+0.34)
+
+  [5]  Fuego en la Pista
+        Artist : Ritmo Del Sur
+        Genre  : latin  |  Mood: uplifting
+        Score  : 2.17 / 6.0
+        Why    :
+                 + energy similarity (+0.93)
+                 + acousticness similarity (+0.91)
+                 + tempo similarity (+0.33)
+
+--------------------------------------------------------------
+
+==============================================================
+  Music Recommender | ADVERSARIAL: Genre-Less (numeric features only)
+==============================================================
+  NOTE: No genre key — max possible score is 4.5. Rooftop Lights beats
+  Sunrise City on numeric similarity alone.
+
+  [1]  Rooftop Lights
+        Artist : Indigo Parade
+        Genre  : indie pop  |  Mood: happy
+        Score  : 3.74 / 6.0
+        Why    :
+                 + mood match (+1.5)
+                 + energy similarity (+0.99)
+                 + acousticness similarity (+0.85)
+                 + tempo similarity (+0.40)
+
+  [2]  Sunrise City
+        Artist : Neon Echo
+        Genre  : pop  |  Mood: happy
+        Score  : 3.54 / 6.0
+        Why    :
+                 + mood match (+1.5)
+                 + energy similarity (+0.93)
+                 + acousticness similarity (+0.68)
+                 + tempo similarity (+0.42)
+
+  [3]  Island Sunrise
+        Artist : Sol Riddim
+        Genre  : reggae  |  Mood: uplifting
+        Score  : 2.31 / 6.0
+        Why    :
+                 + energy similarity (+0.92)
+                 + acousticness similarity (+0.97)
+                 + tempo similarity (+0.42)
+
+  [4]  Velvet Nights
+        Artist : Sable June
+        Genre  : r&b  |  Mood: romantic
+        Score  : 2.23 / 6.0
+        Why    :
+                 + energy similarity (+0.86)
+                 + acousticness similarity (+0.92)
+                 + tempo similarity (+0.45)
+
+  [5]  Night Drive Loop
+        Artist : Neon Echo
+        Genre  : synthwave  |  Mood: moody
+        Score  : 2.18 / 6.0
+        Why    :
+                 + energy similarity (+1.00)
+                 + acousticness similarity (+0.72)
+                 + tempo similarity (+0.46)
+
+--------------------------------------------------------------
+
+==============================================================
+  Music Recommender | EXPERIMENT | Deep Intense Rock | genre x0.5, energy x2.0
+==============================================================
+  NOTE: Storm Runner still #1, but the gap to #2 shrank from 2.13 to 1.15 pts.
+  Cross-genre energy matches (Gym Hero) become significantly more competitive.
+
+  [1]  Storm Runner
+        Artist : Voltline
+        Genre  : rock  |  Mood: intense
+        Score  : 5.97 / 6.0
+        Why    :
+                 + genre match (+1.0)
+                 + mood match (+1.5)
+                 + energy similarity (+1.98)
+                 + acousticness similarity (+1.00)
+                 + tempo similarity (+0.49)
+
+  [2]  Gym Hero
+        Artist : Max Pulse
+        Genre  : pop  |  Mood: intense
+        Score  : 4.82 / 6.0
+        Why    :
+                 + mood match (+1.5)
+                 + energy similarity (+1.94)
+                 + acousticness similarity (+0.95)
+                 + tempo similarity (+0.42)
+
+  [3]  Fuego en la Pista
+        Artist : Ritmo Del Sur
+        Genre  : latin  |  Mood: uplifting
+        Score  : 3.33 / 6.0
+        Why    :
+                 + energy similarity (+1.96)
+                 + acousticness similarity (+0.96)
+                 + tempo similarity (+0.41)
+
+  [4]  Signal Lost
+        Artist : Dusk Circuit
+        Genre  : electronic  |  Mood: sad
+        Score  : 3.20 / 6.0
+        Why    :
+                 + energy similarity (+1.78)
+                 + acousticness similarity (+0.97)
+                 + tempo similarity (+0.45)
+
+  [5]  Iron Requiem
+        Artist : Grave Current
+        Genre  : metal  |  Mood: angry
+        Score  : 3.17 / 6.0
+        Why    :
+                 + energy similarity (+1.86)
+                 + acousticness similarity (+0.93)
+                 + tempo similarity (+0.38)
 
 --------------------------------------------------------------
 ```
