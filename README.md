@@ -17,17 +17,30 @@ Replace this paragraph with your own summary of what your version does.
 
 ## How The System Works
 
-Explain your design in plain language.
+Real-world music recommendation systems, like those on Spotify or YouTube, combine collaborative filtering (analyzing what similar users like based on shared behavior such as likes, skips, and playlists) with content-based filtering (matching songs to user preferences using attributes like tempo, mood, energy, and genre). They often incorporate machine learning models trained on vast datasets to predict preferences, balancing personalization with diversity to avoid echo chambers. My version prioritizes a simple content-based approach, focusing on numerical song features (energy, valence, tempo_bpm, danceability, acousticness) for vibe matching, with categorical boosts for genre and mood, to simulate how platforms recommend based on musical attributes while keeping the system transparent and easy to understand.
 
-Some prompts to answer:
+### Song Object Features
+The `Song` class uses the following features from the `songs.csv` dataset:
+- `id` (int): Unique identifier for the song.
+- `title` (str): Song title.
+- `artist` (str): Artist name.
+- `genre` (str): Categorical genre (e.g., pop, lofi, rock).
+- `mood` (str): Categorical mood (e.g., happy, chill, intense).
+- `energy` (float): Numerical value (0-1) indicating intensity/excitement.
+- `tempo_bpm` (float): Beats per minute, measuring pace.
+- `valence` (float): Numerical value (0-1) indicating positivity/happiness.
+- `danceability` (float): Numerical value (0-1) indicating suitability for dancing.
+- `acousticness` (float): Numerical value (0-1) indicating acoustic vs. electronic elements.
 
-- What features does each `Song` use in your system
-  - For example: genre, mood, energy, tempo
-- What information does your `UserProfile` store
-- How does your `Recommender` compute a score for each song
-- How do you choose which songs to recommend
+### UserProfile Object Features
+The `UserProfile` class stores user preferences to match against songs:
+- `favorite_genre` (str): User's preferred genre (e.g., pop, lofi).
+- `favorite_mood` (str): User's preferred mood (e.g., happy, chill).
+- `target_energy` (float): User's preferred energy level (0-1).
+- `likes_acoustic` (bool): Whether the user prefers acoustic songs (True/False).
 
-You can include a simple diagram or bullet list if helpful.
+These features enable content-based filtering, where numerical attributes are compared for similarity (e.g., minimizing distance in energy), and categorical ones provide bonus points for exact matches. The system prioritizes vibe alignment over other factors like popularity or user history.
+
 
 ---
 
