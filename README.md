@@ -584,7 +584,3 @@ one of the core design decisions every real recommender system has to make.
 
 
 ---
-
-## 7. `model_card_template.md`
-
-Combines reflection and model card framing from the Module 3 guidance.  
